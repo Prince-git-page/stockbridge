@@ -7,6 +7,7 @@ import Catalogue from './pages/Catalogue'
 import Orders from './pages/Orders'
 import Ledger from './pages/Ledger'
 import RetailerOrder from './pages/RetailerOrder'
+import RetailerLedger from './pages/RetailerLedger'
 
 function App() {
   const [session, setSession] = useState(null)
@@ -34,6 +35,10 @@ function App() {
         <Route path="/ledger" element={session ? <Ledger /> : <Navigate to="/login" />} />
         <Route path="/order/:distributorId" element={<RetailerOrder />} />
         <Route path="*" element={<Navigate to={session ? "/dashboard" : "/login"} />} />
+        <Route
+  path="/retailer-ledger/:distributorId"
+  element={<RetailerLedger />}
+/>
       </Routes>
     </BrowserRouter>
   )

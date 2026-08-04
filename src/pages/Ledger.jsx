@@ -126,12 +126,14 @@ export default function Ledger() {
     }
     setSaving(true)
     const { error } = await supabase.from('payments').insert({
-      distributor_id: distributorId,
-      retailer_name: modalRetailer.retailer_name,
-      retailer_shop: modalRetailer.retailer_shop,
-      amount: Number(payAmount),
-      note: payNote.trim() || null,
-    })
+  distributor_id: distributorId,
+  retailer_name: modalRetailer.retailer_name,
+  retailer_shop: modalRetailer.retailer_shop,
+  retailer_phone: modalRetailer.retailer_phone,
+  amount: Number(payAmount),
+  note: payNote.trim() || null,
+})
+    
     if (error) {
       alert('Failed to save: ' + error.message)
       setSaving(false)

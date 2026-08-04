@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { 
   Package, 
   User, 
@@ -19,6 +19,7 @@ import {
 } from 'lucide-react'
 
 export default function RetailerOrder() {
+  const navigate = useNavigate()
   const { distributorId } = useParams()
   const [distributor, setDistributor] = useState(null)
   const [products, setProducts] = useState([])
@@ -141,6 +142,8 @@ export default function RetailerOrder() {
         }
 
         setSubmitted(true)
+        localStorage.setItem("retailer_shop", shopName.trim())
+localStorage.setItem("retailer_phone", retailerPhone.trim())
       }
     } catch (err) {
       console.error(err)
@@ -193,6 +196,12 @@ export default function RetailerOrder() {
             <Info className="h-4 w-4" />
             The distributor will contact you shortly to confirm the shipment.
           </div>
+          <button
+  onClick={() => navigate(`/retailer-ledger/${distributorId}`)}
+  className="w-full mt-4 bg-[#1e3a5f] hover:bg-blue-900 text-white py-3 rounded-xl font-bold transition"
+>
+  View My Ledger
+</button>
         </div>
       </div>
     )
