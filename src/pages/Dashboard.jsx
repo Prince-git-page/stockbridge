@@ -109,7 +109,8 @@ export default function Dashboard() {
     }
   }
 
-  const orderLink = distributor ? `${window.location.origin}/order/${distributor.id}` : ''
+  const baseUrl = import.meta.env.VITE_APP_BASE_URL?.trim()?.replace(/\/+$/, '') || window.location.origin
+  const orderLink = distributor ? `${baseUrl}/order/${distributor.id}` : ''
   const distributorName = distributor?.name || distributor?.shop_name || 'Your business'
   const actions = [
     { title: 'Catalogue', description: 'Manage products', icon: Package, path: '/catalogue', color: '#e0f2fe', iconColor: '#0369a1' },
