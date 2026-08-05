@@ -28,6 +28,14 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route
+  path="/"
+  element={
+    session
+      ? <Navigate to="/dashboard" replace />
+      : <Navigate to="/login" replace />
+  }
+/>
         {/* Authentication */}
         <Route path="/login" element={!session ? <Login /> : <Navigate to="/dashboard" replace />} />
 
