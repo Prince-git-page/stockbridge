@@ -35,15 +35,28 @@ export default function Ledger() {
   async function loadLedger(distId) {
     setLoading(true)
     const { data: orders } = await supabase.from('orders').select('retailer_name, retailer_shop, retailer_phone, total_amount, status').eq('distributor_id', distId)
-    const { data: payments } = await supabase.from('payments').select('retailer_name, retailer_shop, amount').eq('distributor_id', distId)
+    const { data: payments } = await supabase.from('payments').select(`
+retailer_name,
+retailer_shop,
+retailer_phone,
+amount
+`).eq('distributor_id', distId)
     const map = {}
     for (const order of orders || []) {
-      const key = `${order.retailer_name}||${order.retailer_shop}`
-      if (!map[key]) map[key] = { retailer_name: order.retailer_name, retailer_shop: order.retailer_shop, retailer_phone: order.retailer_phone || '', total_ordered: 0, total_paid: 0 }
-      map[key].total_ordered += Number(order.total_amount || 0)
+    const key = `${order.retailer_shop}||${order.retailer_phone}`
+    if (!map[key]) {
+  map[key] = {
+    retailer_name: order.retailer_name,
+    retailer_shop: order.retailer_shop,
+    retailer_phone: order.retailer_phone,
+    total_ordered: 0,
+    total_paid: 0,
+  }
+}
     }
     for (const payment of payments || []) {
-      const key = `${payment.retailer_name}||${payment.retailer_shop}`
+     const key =
+`${payment.retailer_shop}||${payment.retailer_phone}`
       if (!map[key]) map[key] = { retailer_name: payment.retailer_name, retailer_shop: payment.retailer_shop, retailer_phone: '', total_ordered: 0, total_paid: 0 }
       map[key].total_paid += Number(payment.amount || 0)
     }
@@ -53,10 +66,15 @@ export default function Ledger() {
     setLoading(false)
   }
 
-  async function loadHistory(retailer_name, retailer_shop) {
-    const key = `${retailer_name}||${retailer_shop}`
+  async function loadHistory(
+retailer_name,
+retailer_shop,
+retailer_phone
+) {
+   const key =
+`${retailer.retailer_shop}||${retailer.retailer_phone}`
     if (shopHistory[key]) return
-    const { data } = await supabase.from('payments').select('amount, note, created_at').eq('distributor_id', distributorId).eq('retailer_name', retailer_name).eq('retailer_shop', retailer_shop).order('created_at', { ascending: false })
+    const { data } = await supabase.from('payments').select('amount, note, created_at').eq('distributor_id', distributorId).eq('retailer_shop', retailer_shop).eq('retailer_phone', retailer_phone).order('created_at', { ascending: false })
     setShopHistory((previous) => ({ ...previous, [key]: data || [] }))
   }
 
