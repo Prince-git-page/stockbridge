@@ -37,6 +37,7 @@ export default function Dashboard() {
   const [totalOutstanding, setTotalOutstanding] = useState(0)
   const [productCount, setProductCount] = useState(0)
   const [totalOrders, setTotalOrders] = useState(0)
+  const [pendingOrders, setPendingOrders] = useState(0)
   const [copied, setCopied] = useState(false)
   const navigate = useNavigate()
 
@@ -69,14 +70,15 @@ export default function Dashboard() {
 
     setOrders(recentOrders || [])
 
-    const { data: allOrders } = await supabase
-      .from('orders')
-      .select('total_amount')
-      .eq('distributor_id', dist.id)
-      .eq('status', 'placed')
+    const [{ data: allOrders }, { data: allPayments }] = await Promise.all([
+      supabase.from('orders').select('total_amount, status').eq('distributor_id', dist.id),
+      supabase.from('payments').select('amount').eq('distributor_id', dist.id),
+    ])
 
-    const total = (allOrders || []).reduce((sum, order) => sum + (order.total_amount || 0), 0)
-    setTotalOutstanding(total)
+    const outstandingOrders = (allOrders || []).reduce((sum, order) => sum + Number(order.total_amount || 0), 0)
+    const totalPayments = (allPayments || []).reduce((sum, payment) => sum + Number(payment.amount || 0), 0)
+    setTotalOutstanding(outstandingOrders - totalPayments)
+    setPendingOrders((allOrders || []).filter((order) => order.status === 'placed').length)
 
     const [{ count: products }, { count: orderCount }] = await Promise.all([
       supabase.from('products').select('*', { count: 'exact', head: true }).eq('distributor_id', dist.id),
@@ -108,7 +110,6 @@ export default function Dashboard() {
   }
 
   const orderLink = distributor ? `${window.location.origin}/order/${distributor.id}` : ''
-  const pendingOrders = orders.filter((order) => order.status === 'placed').length
   const distributorName = distributor?.name || distributor?.shop_name || 'Your business'
   const actions = [
     { title: 'Catalogue', description: 'Manage products', icon: Package, path: '/catalogue', color: '#e0f2fe', iconColor: '#0369a1' },
@@ -183,7 +184,7 @@ export default function Dashboard() {
         <section className="stats-grid" aria-label="Business overview">
           {[
             { label: 'Pending Orders', value: pendingOrders, note: 'Awaiting action', icon: ClipboardList, bg: '#fff7ed', color: '#c2410c' },
-            { label: 'Outstanding Amount', value: displayCurrency(totalOutstanding), note: 'From placed orders', icon: Wallet, bg: '#fef3c7', color: '#b45309' },
+            { label: 'Outstanding Amount', value: displayCurrency(totalOutstanding), note: 'From all orders minus payments', icon: Wallet, bg: '#fef3c7', color: '#b45309' },
             { label: 'Products Listed', value: productCount, note: 'Available to retailers', icon: Package, bg: '#e0f2fe', color: '#0369a1' },
             { label: 'Total Orders', value: totalOrders, note: 'All time', icon: ShoppingBag, bg: '#dcfce7', color: '#15803d' },
           ].map(({ label, value, note, icon: Icon, bg, color }) => (
