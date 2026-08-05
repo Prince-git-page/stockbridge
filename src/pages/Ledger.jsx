@@ -43,21 +43,21 @@ amount
 `).eq('distributor_id', distId)
     const map = {}
     for (const order of orders || []) {
-    const key = `${order.retailer_shop}||${order.retailer_phone}`
-    if (!map[key]) {
-  map[key] = {
-    retailer_name: order.retailer_name,
-    retailer_shop: order.retailer_shop,
-    retailer_phone: order.retailer_phone,
-    total_ordered: 0,
-    total_paid: 0,
-  }
-}
+      const key = `${order.retailer_shop || ''}||${order.retailer_phone || ''}`
+      if (!map[key]) {
+        map[key] = {
+          retailer_name: order.retailer_name,
+          retailer_shop: order.retailer_shop,
+          retailer_phone: order.retailer_phone,
+          total_ordered: 0,
+          total_paid: 0,
+        }
+      }
+      map[key].total_ordered += Number(order.total_amount || 0)
     }
     for (const payment of payments || []) {
-     const key =
-`${payment.retailer_shop}||${payment.retailer_phone}`
-      if (!map[key]) map[key] = { retailer_name: payment.retailer_name, retailer_shop: payment.retailer_shop, retailer_phone: '', total_ordered: 0, total_paid: 0 }
+      const key = `${payment.retailer_shop || ''}||${payment.retailer_phone || ''}`
+      if (!map[key]) map[key] = { retailer_name: payment.retailer_name, retailer_shop: payment.retailer_shop, retailer_phone: payment.retailer_phone, total_ordered: 0, total_paid: 0 }
       map[key].total_paid += Number(payment.amount || 0)
     }
     const result = Object.values(map).map((retailer) => ({ ...retailer, outstanding: retailer.total_ordered - retailer.total_paid }))
@@ -66,19 +66,20 @@ amount
     setLoading(false)
   }
 
-  async function loadHistory(
-retailer_name,
-retailer_shop,
-retailer_phone
-) {
-   const key =
-`${retailer.retailer_shop}||${retailer.retailer_phone}`
+  async function loadHistory(retailer_name, retailer_shop, retailer_phone) {
+    const key = `${retailer_shop || ''}||${retailer_phone || ''}`
     if (shopHistory[key]) return
     const { data } = await supabase.from('payments').select('amount, note, created_at').eq('distributor_id', distributorId).eq('retailer_shop', retailer_shop).eq('retailer_phone', retailer_phone).order('created_at', { ascending: false })
     setShopHistory((previous) => ({ ...previous, [key]: data || [] }))
   }
 
-  function toggleExpand(key, retailer_name, retailer_shop) { if (expandedShop === key) setExpandedShop(null); else { setExpandedShop(key); loadHistory(retailer_name, retailer_shop) } }
+  function toggleExpand(key, retailer_name, retailer_shop, retailer_phone) {
+    if (expandedShop === key) setExpandedShop(null)
+    else {
+      setExpandedShop(key)
+      loadHistory(retailer_name, retailer_shop, retailer_phone)
+    }
+  }
   function openModal(retailer) { setModalRetailer(retailer); setPayAmount(''); setPayNote(''); setShowModal(true) }
 
   async function savePayment() {
@@ -93,7 +94,7 @@ retailer_phone
       note: payNote.trim() || null,
     })
     if (error) { alert('Failed to save: ' + error.message); setSaving(false); return }
-    const key = `${modalRetailer.retailer_name}||${modalRetailer.retailer_shop}`
+    const key = `${modalRetailer.retailer_shop || ''}||${modalRetailer.retailer_phone || ''}`
     setShopHistory((previous) => { const next = { ...previous }; delete next[key]; return next })
     setShowModal(false)
     setSaving(false)
@@ -119,7 +120,7 @@ retailer_phone
   return <main className="min-h-screen bg-slate-50 pb-12 text-slate-800">
     <header className="bg-[#1e3a5f] text-white shadow-lg shadow-slate-900/10"><div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-5 sm:px-6 lg:flex-row lg:items-center lg:justify-between"><div className="flex items-center gap-3"><span className="grid h-11 w-11 place-items-center rounded-xl bg-white/10"><BookOpen size={22} /></span><div><p className="text-xs font-bold uppercase tracking-[.16em] text-blue-200">StockBridge</p><h1 className="text-xl font-extrabold tracking-tight">Ledger</h1><p className="mt-0.5 text-sm text-blue-100">Stay on top of every retailer balance and collection.</p></div></div><div className="flex flex-wrap items-center gap-2"><HeaderMetric label="Outstanding" value={formatAmount(totalOutstanding)} currency /><HeaderMetric label="Received" value={formatAmount(totalPaid)} currency /><HeaderMetric label="Retailers" value={ledger.length} /><button onClick={() => navigate('/dashboard')} className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3 py-2.5 text-sm font-bold text-[#1e3a5f] transition hover:bg-blue-50"><ArrowLeft size={16} /> Dashboard</button><button onClick={handleLogout} aria-label="Log out" className="inline-flex items-center gap-1.5 rounded-xl bg-white/10 px-3 py-2.5 text-sm font-bold transition hover:bg-white/20"><LogOut size={16} /><span className="hidden sm:inline">Logout</span></button></div></div></header>
     <div className="mx-auto max-w-7xl px-4 py-7 sm:px-6"><section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"><KpiCard icon={Wallet} label="Outstanding amount" value={totalOutstanding} tone="text-rose-600 bg-rose-50" /><KpiCard icon={CreditCard} label="Total received" value={totalPaid} tone="text-emerald-600 bg-emerald-50" /><KpiCard icon={Store} label="Active retailers" value={ledger.length} noCurrency tone="text-blue-700 bg-blue-50" /><KpiCard icon={Clock3} label="Pending collections" value={pendingCollections} noCurrency tone="text-amber-700 bg-amber-50" /></section><section className="mt-7 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm lg:flex-row lg:items-center lg:justify-between"><div className="relative w-full lg:max-w-md"><Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search retailer or shop name…" className="w-full rounded-xl border border-slate-200 py-2.5 pl-10 pr-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-[#1e3a5f] focus:ring-2 focus:ring-[#1e3a5f]/15" /></div><select value={sortBy} onChange={(event) => setSortBy(event.target.value)} className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-bold text-slate-600 outline-none focus:border-[#1e3a5f]"><option value="highest">Highest outstanding</option><option value="lowest">Lowest outstanding</option><option value="recent">Recently active</option><option value="alphabetical">Alphabetical</option></select></section>
-      <section className="mt-5">{loading ? <LoadingState /> : displayedLedger.length === 0 ? <EmptyState hasSearch={Boolean(search)} /> : <div className="grid gap-4 lg:grid-cols-2">{displayedLedger.map((retailer) => { const key = `${retailer.retailer_name}||${retailer.retailer_shop}`; return <RetailerCard key={key} retailer={retailer} history={shopHistory[key]} expanded={expandedShop === key} formatDate={formatDate} onToggle={() => toggleExpand(key, retailer.retailer_name, retailer.retailer_shop)} onPayment={() => openModal(retailer)} /> })}</div>}</section>
+      <section className="mt-5">{loading ? <LoadingState /> : displayedLedger.length === 0 ? <EmptyState hasSearch={Boolean(search)} /> : <div className="grid gap-4 lg:grid-cols-2">{displayedLedger.map((retailer) => { const key = `${retailer.retailer_shop || ''}||${retailer.retailer_phone || ''}`; return <RetailerCard key={key} retailer={retailer} history={shopHistory[key]} expanded={expandedShop === key} formatDate={formatDate} onToggle={() => toggleExpand(key, retailer.retailer_name, retailer.retailer_shop, retailer.retailer_phone)} onPayment={() => openModal(retailer)} /> })}</div>}</section>
     </div>{showModal && modalRetailer && <PaymentModal retailer={modalRetailer} amount={payAmount} note={payNote} saving={saving} onAmount={setPayAmount} onNote={setPayNote} onClose={() => setShowModal(false)} onSave={savePayment} />}
   </main>
 }
