@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useNavigate } from 'react-router-dom'
+import { ArrowLeft, Box, CalendarDays, Eye, EyeOff, ImagePlus, IndianRupee, LoaderCircle, Package, Plus, Trash2, Upload, X } from 'lucide-react'
+
+const formatAmount = (amount) => Number(amount || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })
 
 export default function Catalogue() {
   const [products, setProducts] = useState([])
@@ -23,8 +26,8 @@ export default function Catalogue() {
     }
   }
 
-  function handleImageChange(e) {
-    const file = e.target.files[0]
+  function handleImageChange(event) {
+    const file = event.target.files[0]
     if (!file) return
     setImage(file)
     setPreview(URL.createObjectURL(file))
@@ -66,137 +69,33 @@ export default function Catalogue() {
   }
 
   async function deleteProduct(id) {
-  if (!window.confirm('Delete this product?')) return
-  const { error } = await supabase.from('products').delete().eq('id', id)
-  if (error) {
-    console.error('Delete error:', error)
-    alert(`Delete failed: ${error.message}`)
-    return
+    if (!window.confirm('Delete this product?')) return
+    const { error } = await supabase.from('products').delete().eq('id', id)
+    if (error) {
+      console.error('Delete error:', error)
+      alert(`Delete failed: ${error.message}`)
+      return
+    }
+    await loadProducts()
   }
-  await loadProducts()
+
+  const activeProducts = products.filter((product) => product.active).length
+
+  return <main className="min-h-screen bg-slate-50 pb-12 text-slate-800"><style>{`.catalogue-input { width: 100%; border: 1px solid #e2e8f0; border-radius: .5rem; padding: .625rem .75rem; font-size: .875rem; color: #0f172a; outline: none; transition: border-color .15s, box-shadow .15s; } .catalogue-input::placeholder { color: #94a3b8; } .catalogue-input:focus { border-color: #1e3a5f; box-shadow: 0 0 0 2px rgba(30,58,95,.15); }`}</style>
+    <header className="border-b border-white/10 bg-[#1e3a5f] text-white shadow-lg shadow-slate-900/10"><div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-5 sm:px-6 md:flex-row md:items-center md:justify-between"><div className="flex items-center gap-3"><span className="grid h-11 w-11 place-items-center rounded-xl bg-white/10"><Package size={22} /></span><div><p className="text-xs font-bold uppercase tracking-[.16em] text-blue-200">StockBridge</p><h1 className="text-xl font-extrabold tracking-tight">Catalogue Management</h1><p className="mt-0.5 text-sm text-blue-100">Manage your retailer-ready inventory in one place.</p></div></div><div className="flex items-center gap-3"><div className="rounded-xl bg-white/10 px-3 py-2 text-center"><p className="text-[10px] font-bold uppercase tracking-wider text-blue-200">Total products</p><p className="text-lg font-extrabold leading-5">{products.length}</p></div><button onClick={() => navigate('/dashboard')} className="inline-flex items-center gap-2 rounded-xl bg-white px-3.5 py-2.5 text-sm font-bold text-[#1e3a5f] transition hover:bg-blue-50"><ArrowLeft size={16} /> Dashboard</button></div></div></header>
+
+    <div className="mx-auto grid max-w-7xl gap-6 px-4 py-7 sm:px-6 lg:grid-cols-[390px_minmax(0,1fr)] lg:items-start">
+      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6 lg:sticky lg:top-5"><div className="flex items-start gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-blue-50 text-[#1e3a5f]"><Plus size={21} /></span><div><h2 className="text-lg font-bold text-slate-900">Add a product</h2><p className="mt-1 text-sm leading-5 text-slate-500">Publish an item to your retailer ordering portal.</p></div></div><div className="mt-6 space-y-4"><FormField label="Product name" required><input value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} placeholder="e.g. Premium Basmati Rice" className="catalogue-input" /></FormField><div className="grid grid-cols-2 gap-3"><FormField label="Price" required><div className="relative"><IndianRupee size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" /><input value={form.price} type="number" onChange={(event) => setForm({ ...form, price: event.target.value })} placeholder="450" className="catalogue-input pl-8" /></div></FormField><FormField label="Unit"><input value={form.unit} onChange={(event) => setForm({ ...form, unit: event.target.value })} placeholder="kg, box, bag" className="catalogue-input" /></FormField></div><FormField label="Opening stock"><input value={form.stock} type="number" onChange={(event) => setForm({ ...form, stock: event.target.value })} placeholder="e.g. 150" className="catalogue-input" /></FormField><div><p className="mb-1.5 text-xs font-bold uppercase tracking-wider text-slate-500">Product image</p><input id="imgInput" type="file" accept="image/*" onChange={handleImageChange} className="hidden" />{preview ? <div className="relative overflow-hidden rounded-xl border border-slate-200"><img src={preview} alt="Product preview" className="h-40 w-full object-cover" /><div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-slate-950/60 px-3 py-2"><span className="text-xs font-semibold text-white">Ready to upload</span><button onClick={() => { setImage(null); setPreview(null) }} className="inline-flex items-center gap-1 rounded-md bg-white/15 px-2 py-1 text-xs font-bold text-white transition hover:bg-white/25"><X size={13} /> Remove</button></div></div> : <button onClick={() => document.getElementById('imgInput').click()} className="grid w-full place-items-center rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 px-4 py-7 text-center transition hover:border-[#1e3a5f] hover:bg-blue-50"><span className="mb-2 grid h-10 w-10 place-items-center rounded-xl bg-white text-[#1e3a5f] shadow-sm"><ImagePlus size={20} /></span><span className="text-sm font-bold text-slate-700">Upload product photo</span><span className="mt-1 text-xs text-slate-400">JPG, PNG, or WEBP</span></button>}</div><p className="flex gap-1.5 text-xs leading-5 text-slate-400"><Upload size={14} className="mt-0.5 shrink-0" />Images help retailers find the right product faster.</p><button onClick={addProduct} disabled={loading} className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#1e3a5f] px-4 py-3.5 text-sm font-extrabold text-white shadow-md shadow-slate-900/10 transition hover:bg-[#163354] disabled:cursor-not-allowed disabled:opacity-60">{loading ? <><LoaderCircle size={18} className="animate-spin" /> Publishing product…</> : <><Plus size={18} /> Publish product</>}</button></div></section>
+
+      <section><div className="mb-5 flex flex-wrap items-end justify-between gap-3"><div><h2 className="text-xl font-extrabold tracking-tight text-slate-900">Your inventory</h2><p className="mt-1 text-sm text-slate-500">{activeProducts} visible to retailers · {products.length - activeProducts} hidden</p></div><span className="rounded-full bg-blue-50 px-3 py-1.5 text-xs font-bold text-[#1e3a5f]">{products.length} products</span></div>{products.length === 0 ? <div className="grid min-h-80 place-items-center rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center"><div><span className="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-2xl bg-blue-50 text-[#1e3a5f]"><Box size={31} /></span><h3 className="text-lg font-bold text-slate-800">No products yet</h3><p className="mx-auto mt-2 max-w-xs text-sm leading-6 text-slate-500">Add your first product to start receiving retailer orders.</p></div></div> : <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{products.map((product) => <ProductCard key={product.id} product={product} onToggle={() => toggleProduct(product.id, product.active)} onDelete={() => deleteProduct(product.id)} />)}</div>}</section>
+    </div>
+  </main>
 }
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-[#1e3a5f] text-white px-6 py-4 flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold">Catalogue Management</h1>
-          <p className="text-blue-200 text-sm">Control pricing, track inventory, and visibility settings.</p>
-        </div>
-        <div className="flex items-center gap-4">
-          <span className="text-sm bg-white/20 px-3 py-1 rounded-lg">{products.length} PRODUCT{products.length !== 1 ? 'S' : ''} LISTED</span>
-          <button onClick={() => navigate('/dashboard')} className="text-sm bg-white/20 px-3 py-1 rounded-lg hover:bg-white/30">← Back</button>
-        </div>
-      </div>
+function FormField({ label, required, children }) { return <label className="block"><span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-500">{label}{required && <span className="ml-0.5 text-rose-500">*</span>}</span>{children}</label> }
 
-      <div className="max-w-5xl mx-auto p-4 grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-        {/* Add Product Form */}
-        <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-          <h2 className="text-lg font-bold text-gray-800 mb-4">+ Add New Product</h2>
-
-          <div className="space-y-3">
-            <div>
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Product Title *</label>
-              <input placeholder="e.g. Premium Basmati Rice" value={form.name}
-                onChange={e => setForm({ ...form, name: e.target.value })}
-                className="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#1e3a5f]" />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Price (₹) *</label>
-                <input placeholder="450" value={form.price} type="number"
-                  onChange={e => setForm({ ...form, price: e.target.value })}
-                  className="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#1e3a5f]" />
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Unit</label>
-                <input placeholder="kg, box, bag" value={form.unit}
-                  onChange={e => setForm({ ...form, unit: e.target.value })}
-                  className="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#1e3a5f]" />
-              </div>
-            </div>
-
-            <div>
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Initial Stock Qty</label>
-              <input placeholder="e.g. 150" value={form.stock} type="number"
-                onChange={e => setForm({ ...form, stock: e.target.value })}
-                className="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#1e3a5f]" />
-            </div>
-
-            {/* Image Upload */}
-            <div>
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Product Image</label>
-              <div className="mt-1 border-2 border-dashed border-gray-200 rounded-lg p-4 text-center hover:border-[#1e3a5f] transition-colors cursor-pointer"
-                onClick={() => document.getElementById('imgInput').click()}>
-                {preview ? (
-                  <img src={preview} alt="preview" className="h-32 w-full object-cover rounded-lg" />
-                ) : (
-                  <div className="text-gray-400">
-                    <p className="text-2xl">📷</p>
-                    <p className="text-sm mt-1">Click to upload product photo</p>
-                    <p className="text-xs text-gray-300">JPG, PNG up to 5MB</p>
-                  </div>
-                )}
-              </div>
-              <input id="imgInput" type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
-              {preview && (
-                <button onClick={() => { setImage(null); setPreview(null) }}
-                  className="text-xs text-red-400 mt-1 hover:text-red-600">✕ Remove image</button>
-              )}
-            </div>
-
-            <button onClick={addProduct} disabled={loading}
-              className="w-full bg-[#1e3a5f] text-white py-3 rounded-lg font-semibold hover:bg-blue-800 transition-colors mt-2">
-              {loading ? 'Publishing...' : '+ Publish Product'}
-            </button>
-          </div>
-        </div>
-
-        {/* Product List */}
-        <div>
-          <h2 className="text-lg font-bold text-gray-800 mb-4">Active Catalogue</h2>
-          {products.length === 0 ? (
-            <div className="bg-white rounded-xl p-8 text-center text-gray-400 border border-dashed border-gray-200">
-              No products yet. Add your first product.
-            </div>
-          ) : (
-            products.map(p => (
-              <div key={p.id} className={`bg-white rounded-xl border border-gray-200 mb-3 overflow-hidden shadow-sm transition-opacity ${p.active ? 'opacity-100' : 'opacity-50'}`}>
-                <div className="flex">
-                  {p.image_url ? (
-                    <img src={p.image_url} alt={p.name} className="w-24 h-24 object-cover flex-shrink-0" />
-                  ) : (
-                    <div className="w-24 h-24 bg-gray-100 flex items-center justify-center flex-shrink-0 text-gray-300 text-3xl">📦</div>
-                  )}
-                  <div className="flex-1 p-3">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="font-semibold text-gray-800">{p.name}</p>
-                        <p className="text-[#1e3a5f] font-bold">₹{p.price}{p.unit && <span className="text-gray-400 font-normal text-sm"> / {p.unit}</span>}</p>
-                        <p className="text-xs text-gray-400 mt-1">Stock: {p.stock}</p>
-                      </div>
-                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${p.active ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'}`}>
-                        {p.active ? 'Visible' : 'Hidden'}
-                      </span>
-                    </div>
-                    <div className="flex gap-2 mt-2">
-                      <button onClick={() => toggleProduct(p.id, p.active)}
-                        className="text-xs px-3 py-1 border border-gray-200 rounded-lg hover:bg-gray-50">
-                        {p.active ? 'Hide' : 'Show'}
-                      </button>
-                      <button onClick={() => deleteProduct(p.id)}
-                        className="text-xs px-3 py-1 border border-red-100 text-red-400 rounded-lg hover:bg-red-50">
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      </div>
-    </div>
-  )
+function ProductCard({ product, onToggle, onDelete }) {
+  const stock = Number(product.stock || 0)
+  const stockState = stock === 0 ? { label: 'Out of stock', style: 'bg-rose-50 text-rose-700 ring-rose-200' } : stock <= 10 ? { label: 'Low stock', style: 'bg-amber-50 text-amber-700 ring-amber-200' } : { label: 'In stock', style: 'bg-emerald-50 text-emerald-700 ring-emerald-200' }
+  return <article className={`group overflow-hidden rounded-2xl border bg-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md ${product.active ? 'border-slate-200' : 'border-slate-200 opacity-75'}`}><div className="relative h-40 bg-slate-100">{product.image_url ? <img src={product.image_url} alt={product.name} className="h-full w-full object-cover" /> : <div className="grid h-full place-items-center text-slate-300"><Package size={38} /></div>}<div className="absolute left-3 top-3 flex gap-1.5"><span className={`rounded-full px-2.5 py-1 text-[11px] font-extrabold ring-1 ${product.active ? 'bg-white text-emerald-700 ring-emerald-200' : 'bg-slate-100 text-slate-500 ring-slate-200'}`}>{product.active ? 'Visible' : 'Hidden'}</span></div></div><div className="p-4"><div className="flex items-start justify-between gap-2"><h3 className="min-w-0 truncate font-bold text-slate-900" title={product.name}>{product.name}</h3><span className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-bold ring-1 ${stockState.style}`}>{stockState.label}</span></div><p className="mt-2 flex items-center text-xl font-extrabold tracking-tight text-[#1e3a5f]"><IndianRupee size={17} />{formatAmount(product.price)}{product.unit && <span className="ml-1 text-xs font-medium text-slate-400">/ {product.unit}</span>}</p><div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3 text-xs"><span className="font-semibold text-slate-500">Stock <strong className="ml-1 text-slate-800">{stock}</strong></span>{product.created_at && <span className="flex items-center gap-1 text-slate-400"><CalendarDays size={12} />{new Date(product.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span>}</div><div className="mt-4 grid grid-cols-2 gap-2"><button onClick={onToggle} className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-200 px-2 py-2 text-xs font-bold text-slate-600 transition hover:bg-slate-50">{product.active ? <EyeOff size={14} /> : <Eye size={14} />}{product.active ? 'Hide' : 'Show'}</button><button onClick={onDelete} className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-rose-100 px-2 py-2 text-xs font-bold text-rose-600 transition hover:bg-rose-50"><Trash2 size={14} /> Delete</button></div></div></article>
 }
