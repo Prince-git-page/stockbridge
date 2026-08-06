@@ -1,6 +1,7 @@
 import { BrowserRouter, Link, Navigate, Route, Routes } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { supabase } from './lib/supabase'
+import LanguageToggle from './components/LanguageToggle'
 import Login from './pages/login'
 import Dashboard from './pages/Dashboard'
 import Catalogue from './pages/Catalogue'
@@ -27,6 +28,12 @@ function App() {
 
   return (
     <BrowserRouter>
+      <header style={{ background: '#f8fafc', borderBottom: '1px solid #e6eef6', padding: '10px 18px' }}>
+        <div style={{ maxWidth: 1180, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Link to="/" style={{ textDecoration: 'none', color: '#1e3a5f', fontWeight: 800 }}>StockBridge</Link>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}><LanguageToggle /></div>
+        </div>
+      </header>
       <Routes>
         <Route
   path="/"
