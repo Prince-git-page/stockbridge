@@ -1,0 +1,17 @@
+{
+  "brand": "StockBridge",
+  "dashboard": "Dashboard",
+  "orders": "Orders",
+  "order_history": "Order history",
+  "ordered": "Ordered",
+  "payment_history": "Payment history",
+  "payments_received": "Payments received",
+  "total_ordered": "Total ordered",
+  "retailer_portal": "Retailer Ordering Portal",
+  "copy_link": "Copy Link",
+  "whatsapp": "WhatsApp",
+  "open_portal": "Open Portal",
+  "language": "Language",
+  "show_hindi": "हिंदी",
+  "show_english": "English"
+}

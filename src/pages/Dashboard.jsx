@@ -15,6 +15,8 @@ import {
 import { supabase } from '../lib/supabase'
 import { formatToIST } from '../lib/formatDate'
 import { useNavigate } from 'react-router-dom'
+import LanguageToggle from '../components/LanguageToggle'
+import { useTranslation } from 'react-i18next'
 
 const formatCurrency = (amount) =>
   `₹${Number(amount || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`
@@ -33,6 +35,7 @@ const displayCurrency = (amount) =>
   formatCurrency(amount).replace(/^[^0-9]*/, '\u20b9')
 
 export default function Dashboard() {
+  const { t } = useTranslation()
   const [distributor, setDistributor] = useState(null)
   const [orders, setOrders] = useState([])
   const [totalOutstanding, setTotalOutstanding] = useState(0)
@@ -174,12 +177,12 @@ export default function Dashboard() {
         <header className="dashboard-header">
           <div className="brand-row">
             <div className="brand-mark"><LayoutDashboard size={21} /></div>
-            <div><p className="eyebrow">StockBridge</p><h1 className="page-title">Dashboard</h1></div>
+            <div><p className="eyebrow">{t('brand')}</p><h1 className="page-title">{t('dashboard')}</h1></div>
           </div>
           <div className="profile-row">
             <div className="avatar">{distributorName.charAt(0).toUpperCase()}</div>
             <p className="profile-name">{distributorName}</p>
-            <button className="logout-button" onClick={handleLogout} aria-label="Log out"><LogOut size={16} /> Logout</button>
+            <div className="flex items-center gap-2"><LanguageToggle /><button className="logout-button" onClick={handleLogout} aria-label="Log out"><LogOut size={16} /> Logout</button></div>
           </div>
         </header>
 

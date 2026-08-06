@@ -13,6 +13,8 @@ import {
   ReceiptText,
   Wallet,
 } from 'lucide-react'
+import LanguageToggle from '../components/LanguageToggle'
+import { useTranslation } from 'react-i18next'
 
 const formatAmount = (amount) => Number(amount || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })
   const formatDate = (date) => date ? formatToIST(date, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }) : '—'
@@ -28,6 +30,7 @@ const orderStatus = (status) => {
 }
 
 export default function RetailerLedger() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { distributorId } = useParams()
   const [loading, setLoading] = useState(true)
@@ -102,8 +105,8 @@ export default function RetailerLedger() {
       <header className="border-b border-white/10 bg-[#1e3a5f] text-white shadow-sm">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4 sm:px-6">
           <button onClick={() => navigate(-1)} className="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-sm font-semibold text-blue-50 transition hover:bg-white/10"><ArrowLeft size={18} /> Back</button>
-          <div className="flex items-center gap-2"><span className="grid h-9 w-9 place-items-center rounded-xl bg-white/10"><Wallet size={18} /></span><div><p className="text-[10px] font-bold uppercase tracking-[.16em] text-blue-200">StockBridge</p><h1 className="text-base font-bold">My Ledger</h1></div></div>
-          <div className="w-14" />
+          <div className="flex items-center gap-2"><span className="grid h-9 w-9 place-items-center rounded-xl bg-white/10"><Wallet size={18} /></span><div><p className="text-[10px] font-bold uppercase tracking-[.16em] text-blue-200">{t('brand')}</p><h1 className="text-base font-bold">{t('payment_history')}</h1></div></div>
+          <div className="flex items-center gap-2"><LanguageToggle /><div className="w-14" /></div>
         </div>
       </header>
 
@@ -114,7 +117,7 @@ export default function RetailerLedger() {
         </section>
 
         <div className="grid gap-6 lg:grid-cols-[1.2fr_.8fr]">
-          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6"><div className="mb-5 flex items-center justify-between"><div><h2 className="flex items-center gap-2 text-lg font-bold"><ReceiptText size={19} className="text-[#1e3a5f]" /> Order history</h2><p className="mt-1 text-sm text-slate-500">Every order placed with this distributor.</p></div><span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">{orders.length}</span></div>
+          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6"><div className="mb-5 flex items-center justify-between"><div><h2 className="flex items-center gap-2 text-lg font-bold"><ReceiptText size={19} className="text-[#1e3a5f]" /> {t('order_history')}</h2><p className="mt-1 text-sm text-slate-500">Every order placed with this distributor.</p></div><span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">{orders.length}</span></div>
             {orders.length === 0 ? <EmptyState icon={PackageOpen} title="No orders yet" copy="Your placed orders will appear here automatically." /> : <div className="space-y-3">{orders.map((order) => (
               <article key={order.id} className="rounded-xl border border-slate-200 p-4 transition hover:border-slate-300 hover:shadow-sm">
                 <div className="flex items-start justify-between gap-3">
@@ -141,7 +144,7 @@ export default function RetailerLedger() {
             ))}</div>}
           </section>
 
-          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6"><div className="mb-5 flex items-center justify-between"><div><h2 className="flex items-center gap-2 text-lg font-bold"><CreditCard size={19} className="text-[#1e3a5f]" /> Payment history</h2><p className="mt-1 text-sm text-slate-500">Payments recorded by your distributor.</p></div><span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">{payments.length}</span></div>
+          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6"><div className="mb-5 flex items-center justify-between"><div><h2 className="flex items-center gap-2 text-lg font-bold"><CreditCard size={19} className="text-[#1e3a5f]" /> {t('payment_history')}</h2><p className="mt-1 text-sm text-slate-500">Payments recorded by your distributor.</p></div><span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">{payments.length}</span></div>
             {payments.length === 0 ? <EmptyState icon={CreditCard} title="No payments recorded" copy="Payment entries will show here once they are added." /> : <div className="space-y-3">{payments.map((payment) => <article key={payment.id} className="rounded-xl border border-slate-200 p-4"><div className="flex justify-between gap-3"><div><p className="flex items-center text-lg font-extrabold text-emerald-700"><IndianRupee size={17} />{formatAmount(payment.amount)}</p><p className="mt-1 text-sm text-slate-600">{payment.note || 'Payment received'}</p></div><p className="shrink-0 text-xs font-medium text-slate-400">{formatDate(payment.created_at)}</p></div></article>)}</div>}
           </section>
         </div>
