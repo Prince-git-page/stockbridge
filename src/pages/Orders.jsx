@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useNavigate } from 'react-router-dom'
+import { formatToIST } from '../lib/formatDate'
 import { ArrowLeft, CheckCircle2, ChevronDown, ChevronUp, Clock3, IndianRupee, LogOut, Package, PackageOpen, Phone, Search, SlidersHorizontal, Store, Truck, XCircle } from 'lucide-react'
 
 const STATUS_FLOW = ['placed', 'confirmed', 'dispatched', 'delivered']
@@ -76,7 +77,7 @@ export default function Orders() {
   }, [orders, activeTab, search, sortBy])
 
   const countFor = (tab) => tab === 'all' ? orders.length : orders.filter((order) => order.status === tab).length
-  const formatDate = (timestamp) => new Date(timestamp).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+  const formatDate = (timestamp) => formatToIST(timestamp, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false })
   const pendingCount = countFor('placed')
   const deliveredCount = countFor('delivered')
 

@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, BookOpen, CheckCircle2, ChevronDown, ChevronUp, Clock3, CreditCard, IndianRupee, LoaderCircle, LogOut, Phone, Plus, Search, Store, Wallet, X } from 'lucide-react'
+import { formatToIST } from '../lib/formatDate'
 
 const formatAmount = (amount) => Number(amount || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })
 
@@ -105,7 +106,7 @@ amount
   const totalOutstanding = ledger.reduce((sum, retailer) => sum + retailer.outstanding, 0)
   const totalPaid = ledger.reduce((sum, retailer) => sum + retailer.total_paid, 0)
   const pendingCollections = ledger.filter((retailer) => retailer.outstanding > 0).length
-  const formatDate = (timestamp) => new Date(timestamp).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+  const formatDate = (timestamp) => formatToIST(timestamp, { day: 'numeric', month: 'short', year: 'numeric' })
   const displayedLedger = useMemo(() => {
     const term = search.trim().toLowerCase()
     const filtered = ledger.filter((retailer) => !term || `${retailer.retailer_name || ''} ${retailer.retailer_shop || ''}`.toLowerCase().includes(term))

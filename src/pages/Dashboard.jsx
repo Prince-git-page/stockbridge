@@ -13,6 +13,7 @@ import {
   Wallet,
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+import { formatToIST } from '../lib/formatDate'
 import { useNavigate } from 'react-router-dom'
 
 const formatCurrency = (amount) =>
@@ -227,10 +228,10 @@ export default function Dashboard() {
             ) : <div className="order-list">{orders.map((order) => {
               const status = statusStyle(order.status)
               const retailer = order.retailer_name || 'Retailer'
-              return <article className="order-card" key={order.id}>
+                return <article className="order-card" key={order.id}>
                 <div className="order-avatar">{retailer.charAt(0).toUpperCase()}</div>
                 <div className="order-main"><p className="order-shop">{order.retailer_shop || 'Retailer shop'}</p><p className="order-retailer">{retailer}</p></div>
-                <div className="order-meta"><span className="order-amount">{displayCurrency(order.total_amount)}</span><span className="order-date">{order.created_at ? new Date(order.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}</span><span className="status-badge" style={{ background: status.background, color: status.color }}>{status.label}</span></div>
+                <div className="order-meta"><span className="order-amount">{displayCurrency(order.total_amount)}</span><span className="order-date">{order.created_at ? formatToIST(order.created_at, { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}</span><span className="status-badge" style={{ background: status.background, color: status.color }}>{status.label}</span></div>
               </article>
             })}</div>}
           </section>

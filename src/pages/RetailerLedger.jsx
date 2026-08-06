@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { formatToIST } from '../lib/formatDate'
 import {
   ArrowLeft,
   CheckCircle2,
@@ -14,7 +15,7 @@ import {
 } from 'lucide-react'
 
 const formatAmount = (amount) => Number(amount || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })
-const formatDate = (date) => date ? new Date(date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'
+const formatDate = (date) => date ? formatToIST(date, { day: 'numeric', month: 'short', year: 'numeric' }) : '—'
 
 const orderStatus = (status) => {
   const styles = {
