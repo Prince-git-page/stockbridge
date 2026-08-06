@@ -10,4 +10,6 @@ i18n.use(initReactI18next).init({
   interpolation: { escapeValue: false },
 })
 
+try { document.documentElement.lang = i18n.language } catch (e) {}
+
 export default i18n

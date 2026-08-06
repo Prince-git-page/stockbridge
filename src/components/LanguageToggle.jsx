@@ -6,10 +6,12 @@ export default function LanguageToggle() {
     const next = i18n.language === 'hi' ? 'en' : 'hi'
     i18n.changeLanguage(next)
     try { localStorage.setItem('lang', next) } catch (e) {}
+    try { document.documentElement.lang = next } catch (e) {}
   }
+  const isHi = i18n.language === 'hi'
   return (
-    <button onClick={toggle} aria-label={t('language')} className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2 text-sm font-bold text-white hover:bg-white/20">
-      {i18n.language === 'hi' ? t('show_hindi') : t('show_english')}
+    <button onClick={toggle} aria-label={t('language')} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, borderRadius: 12, padding: '8px 12px', fontSize: 13, fontWeight: 700, background: '#fff', color: '#1e3a5f', border: '1px solid #e6eef6' }}>
+      {isHi ? t('show_hindi') : t('show_english')}
     </button>
   )
 }

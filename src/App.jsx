@@ -1,5 +1,6 @@
 import { BrowserRouter, Link, Navigate, Route, Routes } from 'react-router-dom'
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase } from './lib/supabase'
 import LanguageToggle from './components/LanguageToggle'
 import Login from './pages/login'
@@ -11,6 +12,7 @@ import RetailerOrder from './pages/RetailerOrder'
 import RetailerLedger from './pages/RetailerLedger'
 
 function App() {
+  const { t } = useTranslation()
   const [session, setSession] = useState(null)
   const [loading, setLoading] = useState(true)
 
@@ -30,7 +32,7 @@ function App() {
     <BrowserRouter>
       <header style={{ background: '#f8fafc', borderBottom: '1px solid #e6eef6', padding: '10px 18px' }}>
         <div style={{ maxWidth: 1180, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Link to="/" style={{ textDecoration: 'none', color: '#1e3a5f', fontWeight: 800 }}>StockBridge</Link>
+          <Link to="/" style={{ textDecoration: 'none', color: '#1e3a5f', fontWeight: 800 }}>{t('brand')}</Link>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}><LanguageToggle /></div>
         </div>
       </header>
