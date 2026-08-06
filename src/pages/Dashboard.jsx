@@ -15,7 +15,6 @@ import {
 import { supabase } from '../lib/supabase'
 import { formatToIST } from '../lib/formatDate'
 import { useNavigate } from 'react-router-dom'
-import LanguageToggle from '../components/LanguageToggle'
 import { useTranslation } from 'react-i18next'
 
 const formatCurrency = (amount) =>
@@ -23,14 +22,13 @@ const formatCurrency = (amount) =>
 
 const statusStyle = (status) => {
   const styles = {
-    placed: { background: '#fff7ed', color: '#c2410c', label: 'Placed' },
-    confirmed: { background: '#eff6ff', color: '#1d4ed8', label: 'Confirmed' },
-    delivered: { background: '#ecfdf5', color: '#047857', label: 'Delivered' },
-    cancelled: { background: '#fef2f2', color: '#b91c1c', label: 'Cancelled' },
-  }
-  return styles[status] || { background: '#f1f5f9', color: '#475569', label: status || 'Pending' }
+      placed: { background: '#fff7ed', color: '#c2410c' },
+      confirmed: { background: '#eff6ff', color: '#1d4ed8' },
+      delivered: { background: '#ecfdf5', color: '#047857' },
+      cancelled: { background: '#fef2f2', color: '#b91c1c' },
+    }
+    return styles[status] || { background: '#f1f5f9', color: '#475569' }
 }
-
 const displayCurrency = (amount) =>
   formatCurrency(amount).replace(/^[^0-9]*/, '\u20b9')
 
@@ -115,12 +113,18 @@ export default function Dashboard() {
 
   const baseUrl = import.meta.env.VITE_APP_BASE_URL?.trim()?.replace(/\/+$/, '') || window.location.origin
   const orderLink = distributor ? `${baseUrl}/order/${distributor.id}` : ''
-  const distributorName = distributor?.name || distributor?.shop_name || 'Your business'
+  const distributorName = distributor?.name || distributor?.shop_name || t('your_business')
   const actions = [
-    { title: 'Catalogue', description: 'Manage products', icon: Package, path: '/catalogue', color: '#e0f2fe', iconColor: '#0369a1' },
-    { title: 'Orders', description: 'Review incoming orders', icon: ClipboardList, path: '/orders', color: '#ede9fe', iconColor: '#6d28d9' },
-    { title: 'Ledger', description: 'Track collections', icon: Wallet, path: '/ledger', color: '#dcfce7', iconColor: '#15803d' },
+    { title: t('catalogue'), description: t('manage_products'), icon: Package, path: '/catalogue', color: '#e0f2fe', iconColor: '#0369a1' },
+    { title: t('orders'), description: t('review_incoming_orders'), icon: ClipboardList, path: '/orders', color: '#ede9fe', iconColor: '#6d28d9' },
+    { title: t('ledger'), description: t('track_collections'), icon: Wallet, path: '/ledger', color: '#dcfce7', iconColor: '#15803d' },
   ]
+  const statusLabels = {
+    placed: t('status_placed'),
+    confirmed: t('status_confirmed'),
+    delivered: t('status_delivered'),
+    cancelled: t('status_cancelled'),
+  }
 
   return (
     <main className="dashboard-shell">
@@ -182,16 +186,16 @@ export default function Dashboard() {
           <div className="profile-row">
             <div className="avatar">{distributorName.charAt(0).toUpperCase()}</div>
             <p className="profile-name">{distributorName}</p>
-            <div className="flex items-center gap-2"><LanguageToggle /><button className="logout-button" onClick={handleLogout} aria-label="Log out"><LogOut size={16} /> Logout</button></div>
+            <div className="flex items-center gap-2"><button className="logout-button" onClick={handleLogout} aria-label={t('logout')}><LogOut size={16} /> {t('logout')}</button></div>
           </div>
         </header>
 
         <section className="stats-grid" aria-label="Business overview">
           {[
-            { label: 'Pending Orders', value: pendingOrders, note: 'Awaiting action', icon: ClipboardList, bg: '#fff7ed', color: '#c2410c' },
-            { label: 'Outstanding Amount', value: displayCurrency(totalOutstanding), note: 'From all orders minus payments', icon: Wallet, bg: '#fef3c7', color: '#b45309' },
-            { label: 'Products Listed', value: productCount, note: 'Available to retailers', icon: Package, bg: '#e0f2fe', color: '#0369a1' },
-            { label: 'Total Orders', value: totalOrders, note: 'All time', icon: ShoppingBag, bg: '#dcfce7', color: '#15803d' },
+            { label: t('pending_orders'), value: pendingOrders, note: t('awaiting_action'), icon: ClipboardList, bg: '#fff7ed', color: '#c2410c' },
+            { label: t('outstanding_amount'), value: displayCurrency(totalOutstanding), note: t('from_all_orders_minus_payments'), icon: Wallet, bg: '#fef3c7', color: '#b45309' },
+            { label: t('products_listed'), value: productCount, note: t('available_to_retailers'), icon: Package, bg: '#e0f2fe', color: '#0369a1' },
+            { label: t('total_orders'), value: totalOrders, note: t('all_time'), icon: ShoppingBag, bg: '#dcfce7', color: '#15803d' },
           ].map(({ label, value, note, icon: Icon, bg, color }) => (
             <article className="stat-card" key={label}>
               <div className="stat-top"><p className="stat-label">{label}</p><span className="stat-icon" style={{ background: bg, color }}><Icon size={18} /></span></div>
@@ -202,7 +206,7 @@ export default function Dashboard() {
 
         <div className="content-grid">
           <section>
-            <h2 className="section-heading">Quick actions</h2><p className="section-copy">Keep your wholesale business moving.</p>
+            <h2 className="section-heading">{t('quick_actions')}</h2><p className="section-copy">{t('keep_business_moving')}</p>
             <div className="quick-actions">
               {actions.map(({ title, description, icon: Icon, path, color, iconColor }) => (
                 <button className="quick-action" onClick={() => navigate(path)} key={title}>
@@ -213,28 +217,28 @@ export default function Dashboard() {
               ))}
             </div>
             <section className="share-card">
-              <p className="share-label"><ExternalLink size={15} /> RETAILER ACCESS</p>
-              <h2 className="share-title">Retailer Ordering Portal</h2>
-              <p className="share-copy">Share your private ordering page so retailers can place orders directly with you.</p>
+              <p className="share-label"><ExternalLink size={15} /> {t('retailer_access')}</p>
+              <h2 className="share-title">{t('retailer_portal')}</h2>
+              <p className="share-copy">{t('share_private_ordering_page')}</p>
               <div className="share-actions">
-                <button className="button-primary" onClick={copyOrderLink} disabled={!orderLink}>{copied ? <Check size={16} /> : <Copy size={16} />}{copied ? 'Copied!' : 'Copy Link'}</button>
-                <a className="button-secondary" href={`https://wa.me/?text=${encodeURIComponent(`Order from us here: ${orderLink}`)}`} target="_blank" rel="noreferrer"><ExternalLink size={15} /> WhatsApp</a>
-                <a className="button-secondary" href={orderLink || '#'} target="_blank" rel="noreferrer" onClick={(event) => !orderLink && event.preventDefault()}><ArrowUpRight size={15} /> Open Portal</a>
+                <button className="button-primary" onClick={copyOrderLink} disabled={!orderLink}>{copied ? <Check size={16} /> : <Copy size={16} />}{copied ? t('copied') : t('copy_link')}</button>
+                <a className="button-secondary" href={`https://wa.me/?text=${encodeURIComponent(`${t('order_from_us_here')} ${orderLink}`)}`} target="_blank" rel="noreferrer"><ExternalLink size={15} /> {t('whatsapp')}</a>
+                <a className="button-secondary" href={orderLink || '#'} target="_blank" rel="noreferrer" onClick={(event) => !orderLink && event.preventDefault()}><ArrowUpRight size={15} /> {t('open_portal')}</a>
               </div>
             </section>
           </section>
 
           <section className="orders-panel">
-            <div className="orders-header"><div><h2 className="section-heading">Recent orders</h2><p className="section-copy">Your latest retailer requests.</p></div><button className="view-all" onClick={() => navigate('/orders')}>View all</button></div>
+            <div className="orders-header"><div><h2 className="section-heading">{t('recent_orders')}</h2><p className="section-copy">{t('latest_retailer_requests')}</p></div><button className="view-all" onClick={() => navigate('/orders')}>{t('view_all')}</button></div>
             {orders.length === 0 ? (
-              <div className="empty-state"><div className="empty-icon"><PackageOpen size={28} /></div><h3 className="empty-title">No orders yet</h3><p className="empty-copy">Share your retailer portal to start receiving orders here.</p></div>
+              <div className="empty-state"><div className="empty-icon"><PackageOpen size={28} /></div><h3 className="empty-title">{t('no_orders_yet')}</h3><p className="empty-copy">{t('share_portal_to_start')}</p></div>
             ) : <div className="order-list">{orders.map((order) => {
               const status = statusStyle(order.status)
-              const retailer = order.retailer_name || 'Retailer'
+              const retailer = order.retailer_name || t('retailer')
                 return <article className="order-card" key={order.id}>
                 <div className="order-avatar">{retailer.charAt(0).toUpperCase()}</div>
-                <div className="order-main"><p className="order-shop">{order.retailer_shop || 'Retailer shop'}</p><p className="order-retailer">{retailer}</p></div>
-                <div className="order-meta"><span className="order-amount">{displayCurrency(order.total_amount)}</span><span className="order-date">{order.created_at ? formatToIST(order.created_at, { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}</span><span className="status-badge" style={{ background: status.background, color: status.color }}>{status.label}</span></div>
+                <div className="order-main"><p className="order-shop">{order.retailer_shop || t('retailer_shop')}</p><p className="order-retailer">{retailer}</p></div>
+                <div className="order-meta"><span className="order-amount">{displayCurrency(order.total_amount)}</span><span className="order-date">{order.created_at ? formatToIST(order.created_at, { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}</span><span className="status-badge" style={{ background: status.background, color: status.color }}>{order.status ? statusLabels[order.status] || t('status_pending') : t('status_pending')}</span></div>
               </article>
             })}</div>}
           </section>
