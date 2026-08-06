@@ -15,7 +15,7 @@ import {
 } from 'lucide-react'
 
 const formatAmount = (amount) => Number(amount || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })
-const formatDate = (date) => date ? formatToIST(date, { day: 'numeric', month: 'short', year: 'numeric' }) : '—'
+  const formatDate = (date) => date ? formatToIST(date, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }) : '—'
 
 const orderStatus = (status) => {
   const styles = {
@@ -59,6 +59,17 @@ export default function RetailerLedger() {
       .eq('retailer_phone', phone)
       .order('created_at', { ascending: false })
 
+    // fetch order items for the retrieved orders
+    let itemsByOrder = {}
+    const orderIds = (orderData || []).map((o) => o.id).filter(Boolean)
+    if (orderIds.length) {
+      const { data: items } = await supabase.from('order_items').select('*').in('order_id', orderIds)
+      for (const item of items || []) {
+        if (!itemsByOrder[item.order_id]) itemsByOrder[item.order_id] = []
+        itemsByOrder[item.order_id].push(item)
+      }
+    }
+
     const { data: paymentData } = await supabase
       .from('payments')
       .select('*')
@@ -70,7 +81,9 @@ export default function RetailerLedger() {
     const totalOrders = (orderData || []).reduce((sum, order) => sum + Number(order.total_amount || 0), 0)
     const totalPaid = (paymentData || []).reduce((sum, payment) => sum + Number(payment.amount || 0), 0)
 
-    setOrders(orderData || [])
+    // attach items to orders
+    const ordersWithItems = (orderData || []).map((o) => ({ ...o, items: itemsByOrder[o.id] || [] }))
+    setOrders(ordersWithItems)
     setPayments(paymentData || [])
     setSummary({ ordered: totalOrders, paid: totalPaid, outstanding: totalOrders - totalPaid })
     setLoading(false)
@@ -102,7 +115,30 @@ export default function RetailerLedger() {
 
         <div className="grid gap-6 lg:grid-cols-[1.2fr_.8fr]">
           <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6"><div className="mb-5 flex items-center justify-between"><div><h2 className="flex items-center gap-2 text-lg font-bold"><ReceiptText size={19} className="text-[#1e3a5f]" /> Order history</h2><p className="mt-1 text-sm text-slate-500">Every order placed with this distributor.</p></div><span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">{orders.length}</span></div>
-            {orders.length === 0 ? <EmptyState icon={PackageOpen} title="No orders yet" copy="Your placed orders will appear here automatically." /> : <div className="space-y-3">{orders.map((order) => <article key={order.id} className="rounded-xl border border-slate-200 p-4 transition hover:border-slate-300 hover:shadow-sm"><div className="flex items-start justify-between gap-3"><div><p className="flex items-center text-lg font-extrabold text-slate-900"><IndianRupee size={17} />{formatAmount(order.total_amount)}</p><p className="mt-1 text-sm text-slate-500">Ordered {formatDate(order.created_at)}</p></div><span className={`rounded-full px-2.5 py-1 text-xs font-bold capitalize ring-1 ${orderStatus(order.status)}`}>{order.status || 'Pending'}</span></div></article>)}</div>}
+            {orders.length === 0 ? <EmptyState icon={PackageOpen} title="No orders yet" copy="Your placed orders will appear here automatically." /> : <div className="space-y-3">{orders.map((order) => (
+              <article key={order.id} className="rounded-xl border border-slate-200 p-4 transition hover:border-slate-300 hover:shadow-sm">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="flex items-center text-lg font-extrabold text-slate-900"><IndianRupee size={17} />{formatAmount(order.total_amount)}</p>
+                    <p className="mt-1 text-sm text-slate-500">Ordered {formatDate(order.created_at)}</p>
+                    {order.items && order.items.length > 0 && (
+                      <ul className="mt-3 space-y-2 text-sm text-slate-700">
+                        {order.items.map((it) => (
+                          <li key={it.id} className="flex items-center justify-between">
+                            <div className="min-w-0">
+                              <p className="truncate font-medium">{it.product_name || it.name || 'Product'}</p>
+                              <p className="text-xs text-slate-500">Qty: {it.quantity}</p>
+                            </div>
+                            <div className="text-right font-bold"><IndianRupee size={14} />{formatAmount(Number(it.price || 0) * Number(it.quantity || 0))}</div>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                  <span className={`rounded-full px-2.5 py-1 text-xs font-bold capitalize ring-1 ${orderStatus(order.status)}`}>{order.status || 'Pending'}</span>
+                </div>
+              </article>
+            ))}</div>}
           </section>
 
           <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6"><div className="mb-5 flex items-center justify-between"><div><h2 className="flex items-center gap-2 text-lg font-bold"><CreditCard size={19} className="text-[#1e3a5f]" /> Payment history</h2><p className="mt-1 text-sm text-slate-500">Payments recorded by your distributor.</p></div><span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">{payments.length}</span></div>
