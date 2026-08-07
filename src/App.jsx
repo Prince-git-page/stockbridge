@@ -56,7 +56,7 @@ function App() {
         <Route path="/ledger" element={session ? <Ledger /> : <Navigate to="/login" replace />} />
         <Route path="/signup" element={!session ? <Signup /> : <Navigate to="/dashboard" />} />
         {/* Retailer portal — public distributor-specific routes */}
-        <Route path="/order/:distributorId" element={<RetailerOrder />} />
+        <Route path="/order/:id" element={<RetailerOrder />} />
         <Route path="/retailer-ledger/:distributorId" element={<RetailerLedger />} />
 
         {/* Unknown URLs retain browser history and offer a graceful return path. */}
