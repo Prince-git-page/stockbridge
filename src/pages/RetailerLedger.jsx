@@ -58,8 +58,8 @@ export default function RetailerLedger() {
       .from('orders')
       .select('*')
       .eq('distributor_id', distributorId)
-      .eq('retailer_shop', shop)
-      .eq('retailer_phone', phone)
+      .eq('shop_name', shop)
+      .eq('mobile', phone)
       .order('created_at', { ascending: false })
 
     // fetch order items for the retrieved orders

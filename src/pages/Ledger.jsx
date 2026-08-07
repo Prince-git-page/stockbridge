@@ -35,7 +35,7 @@ export default function Ledger() {
 
   async function loadLedger(distId) {
     setLoading(true)
-    const { data: orders } = await supabase.from('orders').select('retailer_name, retailer_shop, retailer_phone, total_amount, status').eq('distributor_id', distId)
+    const { data: orders } = await supabase.from('orders').select('retailer_name, shop_name, mobile, total_amount, status').eq('distributor_id', distId)
     const { data: payments } = await supabase.from('payments').select(`
 retailer_name,
 retailer_shop,
@@ -44,12 +44,12 @@ amount
 `).eq('distributor_id', distId)
     const map = {}
     for (const order of orders || []) {
-      const key = `${order.retailer_shop || ''}||${order.retailer_phone || ''}`
+      const key = `${order.shop_name || ''}||${order.mobile || ''}`
       if (!map[key]) {
         map[key] = {
           retailer_name: order.retailer_name,
-          retailer_shop: order.retailer_shop,
-          retailer_phone: order.retailer_phone,
+          retailer_shop: order.shop_name,
+          retailer_phone: order.mobile,
           total_ordered: 0,
           total_paid: 0,
         }
