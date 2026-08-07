@@ -10,6 +10,7 @@ import Orders from './pages/Orders'
 import Ledger from './pages/Ledger'
 import RetailerOrder from './pages/RetailerOrder'
 import RetailerLedger from './pages/RetailerLedger'
+import Signup from './pages/Signup'
 
 function App() {
   const { t } = useTranslation()
@@ -53,7 +54,7 @@ function App() {
         <Route path="/catalogue" element={session ? <Catalogue /> : <Navigate to="/login" replace />} />
         <Route path="/orders" element={session ? <Orders /> : <Navigate to="/login" replace />} />
         <Route path="/ledger" element={session ? <Ledger /> : <Navigate to="/login" replace />} />
-
+        <Route path="/signup" element={!session ? <Signup /> : <Navigate to="/dashboard" />} />
         {/* Retailer portal — public distributor-specific routes */}
         <Route path="/order/:distributorId" element={<RetailerOrder />} />
         <Route path="/retailer-ledger/:distributorId" element={<RetailerLedger />} />
