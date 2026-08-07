@@ -13,7 +13,8 @@ import {
   ReceiptText,
   Wallet,
 } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+import { useLanguage } from '../context/LanguageContext'
+import LanguageToggle from '../components/LanguageToggle'
 
 const formatAmount = (amount) => Number(amount || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })
   const formatDate = (date) => date ? formatToIST(date, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }) : '—'
@@ -29,20 +30,13 @@ const orderStatus = (status) => {
 }
 
 export default function RetailerLedger() {
-  const { t } = useTranslation()
+  const { t } = useLanguage()
   const navigate = useNavigate()
   const { distributorId } = useParams()
   const [loading, setLoading] = useState(true)
   const [orders, setOrders] = useState([])
   const [payments, setPayments] = useState([])
   const [summary, setSummary] = useState({ ordered: 0, paid: 0, outstanding: 0 })
-
-  const statusLabels = {
-    placed: t('status_placed'),
-    confirmed: t('status_confirmed'),
-    delivered: t('status_delivered'),
-    cancelled: t('status_cancelled'),
-  }
 
   useEffect(() => {
     loadData()
@@ -112,7 +106,7 @@ export default function RetailerLedger() {
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4 sm:px-6">
           <button onClick={() => navigate(-1)} className="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-sm font-semibold text-blue-50 transition hover:bg-white/10"><ArrowLeft size={18} /> {t('back')}</button>
           <div className="flex items-center gap-2"><span className="grid h-9 w-9 place-items-center rounded-xl bg-white/10"><Wallet size={18} /></span><div><p className="text-[10px] font-bold uppercase tracking-[.16em] text-blue-200">{t('brand')}</p><h1 className="text-base font-bold">{t('payment_history')}</h1></div></div>
-          <div className="flex items-center gap-2"><div className="w-14" /></div>
+          <div className="flex items-center gap-2"><LanguageToggle /></div>
         </div>
       </header>
 

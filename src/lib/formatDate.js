@@ -9,7 +9,7 @@ export function formatToIST(timestamp, options = {}) {
     }
     const d = new Date(parsed)
     return d.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', ...options })
-  } catch (e) {
+  } catch {
     return String(timestamp)
   }
 }

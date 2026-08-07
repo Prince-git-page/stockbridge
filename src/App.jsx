@@ -26,7 +26,7 @@ function App() {
     })
   }, [])
 
-  if (loading) return <AppLoading />
+  if (loading) return <AppLoading t={t} />
 
   return (
     <BrowserRouter>
@@ -59,21 +59,21 @@ function App() {
         <Route path="/retailer-ledger/:distributorId" element={<RetailerLedger />} />
 
         {/* Unknown URLs retain browser history and offer a graceful return path. */}
-        <Route path="*" element={<NotFoundPage isAuthenticated={Boolean(session)} />} />
+        <Route path="*" element={<NotFoundPage isAuthenticated={Boolean(session)} t={t} />} />
       </Routes>
     </BrowserRouter>
   )
 }
 
-function AppLoading() {
-  return <main style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: '#f8fafc', color: '#1e3a5f', fontFamily: 'ui-sans-serif, system-ui, sans-serif' }}><div style={{ textAlign: 'center' }}><span style={{ display: 'block', width: 38, height: 38, margin: '0 auto 14px', border: '4px solid #dbeafe', borderTopColor: '#1e3a5f', borderRadius: '50%', animation: 'stockbridge-spin .8s linear infinite' }} /><p style={{ margin: 0, fontWeight: 700 }}>Loading StockBridge…</p><style>{'@keyframes stockbridge-spin { to { transform: rotate(360deg); } }'}</style></div></main>
+function AppLoading({ t }) {
+  return <main style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: '#f8fafc', color: '#1e3a5f', fontFamily: 'ui-sans-serif, system-ui, sans-serif' }}><div style={{ textAlign: 'center' }}><span style={{ display: 'block', width: 38, height: 38, margin: '0 auto 14px', border: '4px solid #dbeafe', borderTopColor: '#1e3a5f', borderRadius: '50%', animation: 'stockbridge-spin .8s linear infinite' }} /><p style={{ margin: 0, fontWeight: 700 }}>{t('loading_app')}</p><style>{'@keyframes stockbridge-spin { to { transform: rotate(360deg); } }'}</style></div></main>
 }
 
-function NotFoundPage({ isAuthenticated }) {
+function NotFoundPage({ isAuthenticated, t }) {
   const destination = isAuthenticated ? '/dashboard' : '/login'
-  const label = isAuthenticated ? 'Go to dashboard' : 'Go to sign in'
+  const label = isAuthenticated ? t('go_to_dashboard') : t('go_to_sign_in')
 
-  return <main style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', padding: 24, background: '#f8fafc', color: '#1e293b', fontFamily: 'ui-sans-serif, system-ui, sans-serif' }}><section style={{ width: '100%', maxWidth: 440, padding: 36, border: '1px solid #e2e8f0', borderRadius: 20, background: '#fff', boxShadow: '0 14px 32px rgba(15, 23, 42, .08)', textAlign: 'center' }}><p style={{ margin: 0, color: '#1e3a5f', fontSize: 12, fontWeight: 800, letterSpacing: '.14em' }}>STOCKBRIDGE</p><p style={{ margin: '20px 0 0', color: '#1e3a5f', fontSize: 48, fontWeight: 800, lineHeight: 1 }}>404</p><h1 style={{ margin: '12px 0 0', fontSize: 22 }}>Page not found</h1><p style={{ margin: '10px 0 24px', color: '#64748b', fontSize: 14, lineHeight: 1.55 }}>This link may be incorrect, expired, or no longer available.</p><Link to={destination} replace style={{ display: 'inline-block', padding: '11px 16px', borderRadius: 10, background: '#1e3a5f', color: '#fff', fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>{label}</Link></section></main>
+  return <main style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', padding: 24, background: '#f8fafc', color: '#1e293b', fontFamily: 'ui-sans-serif, system-ui, sans-serif' }}><section style={{ width: '100%', maxWidth: 440, padding: 36, border: '1px solid #e2e8f0', borderRadius: 20, background: '#fff', boxShadow: '0 14px 32px rgba(15, 23, 42, .08)', textAlign: 'center' }}><p style={{ margin: 0, color: '#1e3a5f', fontSize: 12, fontWeight: 800, letterSpacing: '.14em' }}>STOCKBRIDGE</p><p style={{ margin: '20px 0 0', color: '#1e3a5f', fontSize: 48, fontWeight: 800, lineHeight: 1 }}>404</p><h1 style={{ margin: '12px 0 0', fontSize: 22 }}>{t('page_not_found')}</h1><p style={{ margin: '10px 0 24px', color: '#64748b', fontSize: 14, lineHeight: 1.55 }}>{t('page_not_found_detail')}</p><Link to={destination} replace style={{ display: 'inline-block', padding: '11px 16px', borderRadius: 10, background: '#1e3a5f', color: '#fff', fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>{label}</Link></section></main>
 }
 
 export default App
