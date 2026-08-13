@@ -237,7 +237,7 @@ export default function Dashboard() {
               const retailer = order.retailer_name || t('retailer')
                 return <article className="order-card" key={order.id}>
                 <div className="order-avatar">{retailer.charAt(0).toUpperCase()}</div>
-                <div className="order-main"><p className="order-shop">{order.retailer_shop || t('retailer_shop')}</p><p className="order-retailer">{retailer}</p></div>
+                <div className="order-main"><p className="order-shop">{order.shop_name || order.retailer_shop || t('retailer_shop')}</p><p className="order-retailer">{retailer}</p></div>
                 <div className="order-meta"><span className="order-amount">{displayCurrency(order.total_amount)}</span><span className="order-date">{order.created_at ? formatToIST(order.created_at, { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}</span><span className="status-badge" style={{ background: status.background, color: status.color }}>{order.status ? statusLabels[order.status] || t('status_pending') : t('status_pending')}</span></div>
               </article>
             })}</div>}
