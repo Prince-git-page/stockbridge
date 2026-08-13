@@ -8,4 +8,6 @@ export default {
   items_selected: 'चुनी गई वस्तुएँ', estimated_total: 'अनुमानित कुल', placing_order: 'ऑर्डर किया जा रहा है…', order_review_notice: 'वितरक आपका ऑर्डर पूरा करने से पहले उसकी समीक्षा करेगा।', distributor: 'वितरक', quantity_for_product: '{{product}} की मात्रा',
   missing_required_fields: 'आवश्यक जानकारी भरें',
   ready_to_upload: 'अपलोड के लिए तैयार', upload_product_photo: 'उत्पाद की फोटो अपलोड करें', image_file_types: 'JPG, PNG या WEBP', images_help: 'फोटो से रिटेलर सही उत्पाद जल्दी पहचान पाते हैं।', publishing_product: 'उत्पाद प्रकाशित हो रहा है…', publish_product: 'उत्पाद प्रकाशित करें', products: 'उत्पाद', stock_label: 'स्टॉक',
+  edit: 'संपादित करें', edit_product: 'उत्पाद संपादित करें', save_changes: 'बदलाव सहेजें', saving_changes: 'बदलाव सहेजे जा रहे हैं…', product_updated_successfully: 'उत्पाद सफलतापूर्वक अपडेट हो गया।', failed_to_update_product: 'उत्पाद अपडेट नहीं हो सका', product_name_and_unit_required: 'उत्पाद का नाम और इकाई आवश्यक हैं।', price_must_be_non_negative: 'मूल्य शून्य या उससे अधिक होना चाहिए।', stock_must_be_non_negative: 'स्टॉक शून्य या उससे अधिक पूर्ण संख्या होना चाहिए।',
+  hide: 'छिपाएँ',
 }
